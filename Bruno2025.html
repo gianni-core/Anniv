@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nounours – Gift</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #f3e8ff, #fde2f3);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      max-width: 1100px;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .box {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .box h2 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .defauts h2 {
+      color: #d946ef;
+    }
+
+    .qualites h2 {
+      color: #7c3aed;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #f5f3ff;
+      margin: 10px 0;
+      padding: 10px 15px;
+      border-radius: 12px;
+    }
+
+    .bear {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .bear img {
+      max-width: 100%;
+      height: auto;
+      max-height: 350px;
+    }
+
+    .bear h1 {
+      margin-top: 15px;
+      color: #5b21b6;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Défauts -->
+    <div class="box defauts">
+      <h2>Défauts</h2>
+      <ul>
+        <li>Un peu maladroit</li>
+        <li>Taquin</li>
+        <li>Moqueur</li>
+        <li>Têtu</li>
+      </ul>
+    </div>
+
+    <!-- Nounours -->
+    <div class="bear">
+      <img src="https://png.pngtree.com/png-clipart/20250606/original/pngtree-purple-teddy-bear-isolated-on-transparent-background-png-image_21131167.png" alt="Gros nounours" />
+      <h1>Bruno</h1>
+    </div>
+
+    <!-- Qualités -->
+    <div class="box qualites">
+      <h2>Qualités</h2>
+      <ul>
+        <li>Taquin</li>
+        <li>Enthousiaste/li>
+        <li>Généreux</li>
+        <li>Courageux</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
