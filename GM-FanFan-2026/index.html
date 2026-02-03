@@ -2,38 +2,111 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Test JSZip</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.11.0/jszip.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compression Base64 par caractères</title>
+<style>
+body { font-family: Arial; text-align:center; padding:20px; }
+img.converted { max-width:80%; margin-top:20px; border-radius:10px; }
+#errorMsg { color:red; font-weight:bold; }
+</style>
 </head>
 <body>
-<input type="file" id="imageInput" accept="image/*">
-<button onclick="convertImage()">Convertir en ZIP</button>
-<a id="downloadLink" style="display:none;">Télécharger ZIP</a>
+
+<h1>Compression Base64 avec caractères</h1>
+
+<h2>Convertir une image en texte compressé</h2>
+<input type="file" id="imageInput" accept="image/*"><br>
+<button onclick="convertImage()">Convertir</button>
+<p id="errorMsg"></p>
+<a id="downloadLink" style="display:none;">Télécharger image.txt</a>
+
+<h2>Reconvertir le texte en image</h2>
+<input type="file" id="textInput" accept=".txt"><br>
+<button onclick="convertTextToImage()">Afficher l'image</button>
+<div id="imageOutput"></div>
+
 <script>
+// RLE simple pour Base64
+function compressRLE(str){
+    let result = '';
+    let count = 1;
+    for(let i=0; i<str.length; i++){
+        if(str[i] === str[i+1]){
+            count++;
+        } else {
+            result += count + str[i];
+            count = 1;
+        }
+    }
+    return result;
+}
+
+// Décompression RLE
+function decompressRLE(str){
+    let result = '';
+    let matches = str.match(/\d+[A-Za-z0-9+/=]/g);
+    if(matches) {
+        matches.forEach(m => {
+            const num = parseInt(m.match(/\d+/)[0]);
+            const char = m.match(/[A-Za-z0-9+/=]/)[0];
+            result += char.repeat(num);
+        });
+    }
+    return result;
+}
+
+// Convertir image en texte compressé
 function convertImage(){
     const file = document.getElementById('imageInput').files[0];
+    const errorMsg = document.getElementById('errorMsg');
+    errorMsg.textContent = '';
     if(!file) return alert("Choisissez une image.");
 
     const reader = new FileReader();
-    reader.onload = async function(e){
-        const base64Data = e.target.result.split(',')[1];
-        const zip = new JSZip();
-        zip.file("image.txt", base64Data);
+    reader.onload = function(e){
+        const base64Data = e.target.result.split(',')[1]; // supprimer data:image
+        const compressed = compressRLE(base64Data);
 
-        const content = await zip.generateAsync({type:"blob", compression:"DEFLATE"});
-        if(content.size > 1024*1024){
-            alert("Erreur : fichier compressé > 1 Mo");
+        // Vérification taille
+        if(new Blob([compressed]).size > 1024*1024){
+            errorMsg.textContent = "Erreur : fichier compressé > 1 Mo. Choisissez une image plus petite.";
+            document.getElementById('downloadLink').style.display = 'none';
             return;
         }
 
+        const blob = new Blob([compressed], {type:'text/plain'});
+        const url = URL.createObjectURL(blob);
         const link = document.getElementById('downloadLink');
-        link.href = URL.createObjectURL(content);
-        link.download = "image.zip";
-        link.style.display = "inline";
-        link.textContent = "Télécharger ZIP";
-    }
+        link.href = url;
+        link.download = 'image.txt';
+        link.style.display = 'inline';
+        link.textContent = 'Télécharger image.txt';
+        alert("Image convertie et compressée !");
+    };
     reader.readAsDataURL(file);
 }
+
+// Reconversion du texte en image
+function convertTextToImage(){
+    const file = document.getElementById('textInput').files[0];
+    if(!file) return alert("Choisissez un fichier texte.");
+
+    const reader = new FileReader();
+    reader.onload = function(e){
+        const compressed = e.target.result;
+        const base64Data = decompressRLE(compressed);
+
+        const img = document.createElement('img');
+        img.src = 'data:image/jpeg;base64,' + base64Data;
+        img.className = 'converted';
+
+        const output = document.getElementById('imageOutput');
+        output.innerHTML = '';
+        output.appendChild(img);
+    };
+    reader.readAsText(file);
+}
 </script>
+
 </body>
 </html>
