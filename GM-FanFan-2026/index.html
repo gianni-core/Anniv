@@ -26,6 +26,10 @@ img.converted {
     margin-top: 20px;
     border-radius: 10px;
 }
+#errorMsg {
+    color: red;
+    font-weight: bold;
+}
 </style>
 </head>
 <body>
@@ -40,6 +44,7 @@ img.converted {
     <h2>Convertir une image en texte</h2>
     <input type="file" id="imageInput" accept="image/*"><br>
     <button onclick="convertImage()">Convertir en texte</button>
+    <p id="errorMsg"></p>
     <a id="downloadLink" style="display:none;">Télécharger le fichier image.txt</a>
     <h3>Ou reconvertir un fichier texte en image :</h3>
     <input type="file" id="textInput" accept=".txt"><br>
@@ -54,14 +59,25 @@ if(window.location.hash === '#create'){
     document.getElementById('createSection').style.display = 'block';
 }
 
-// Convertir l'image en Base64 et proposer un téléchargement .txt
+// Convertir l'image en Base64 et vérifier la taille
 function convertImage(){
     const file = document.getElementById('imageInput').files[0];
+    const errorMsg = document.getElementById('errorMsg');
+    errorMsg.textContent = '';
     if(!file) return alert("Veuillez choisir une image.");
 
     const reader = new FileReader();
     reader.onload = function(e){
         const base64Data = e.target.result.split(',')[1]; // Supprime le préfixe data:image
+
+        // Vérification taille Base64
+        const sizeInBytes = Math.ceil(base64Data.length * 3 / 4); // Conversion Base64 -> taille réelle approximative
+        if(sizeInBytes > 1 * 1024 * 1024){ // 1 Mo
+            errorMsg.textContent = "Erreur : le fichier généré dépasse 1 Mo. Choisissez une image plus petite.";
+            document.getElementById('downloadLink').style.display = 'none';
+            return;
+        }
+
         const blob = new Blob([base64Data], {type: 'text/plain'});
         const url = URL.createObjectURL(blob);
 
