@@ -11,13 +11,11 @@ body {
     text-align: center;
     padding: 20px;
 }
-
 h1 {
     color: #ff4500;
     font-size: 3em;
     margin-bottom: 30px;
 }
-
 .start-button, button, .nav-buttons a {
     padding: 10px 20px;
     font-size: 1.1em;
@@ -30,15 +28,8 @@ h1 {
     color: white;
     transition: 0.3s;
 }
-.start-button:hover, button:hover, .nav-buttons a:hover {
-    background-color: #ff4500;
-}
-
-.image-section {
-    display: none;
-    margin-top: 30px;
-}
-
+.start-button:hover, button:hover, .nav-buttons a:hover { background-color: #ff4500; }
+.image-section { display: none; margin-top: 30px; }
 .image-section img {
     max-width: 80%;
     border-radius: 10px;
@@ -46,14 +37,11 @@ h1 {
     transform: translateY(20px);
     transition: opacity 1s, transform 1s;
 }
-
 .image-section img.show {
     opacity: 1;
     transform: translateY(0);
 }
-
 #errorMsg { color:red; font-weight:bold; }
-
 #imageOutput img { max-width:80%; margin-top:20px; border-radius:10px; }
 </style>
 </head>
@@ -63,19 +51,19 @@ h1 {
 
 <div id="home">
     <button class="start-button" onclick="startGallery()">Commencer</button>
-    <p>Ou utilisez <code>#create</code> dans l'URL pour ajouter vos images compressées.</p>
+    <p>Ou utilisez <code>#create</code> dans l'URL pour ajouter vos images.</p>
 </div>
 
 <!-- Carrousel d'images -->
 <div class="image-section" id="Img1">
-    <img src="image1.jpg" alt="Image 1" id="img1">
+    <img src="https://via.placeholder.com/400x300.png?text=Image+1" alt="Image 1" id="img1">
     <div class="nav-buttons">
         <a href="#Img2" onclick="showImage('img2')">Suivant</a>
     </div>
 </div>
 
 <div class="image-section" id="Img2">
-    <img src="image2.jpg" alt="Image 2" id="img2">
+    <img src="https://via.placeholder.com/400x300.png?text=Image+2" alt="Image 2" id="img2">
     <div class="nav-buttons">
         <a href="#Img1" onclick="showImage('img1')">Précédent</a>
     </div>
@@ -119,30 +107,6 @@ if(window.location.hash === '#create'){
     document.getElementById('createSection').style.display='block';
 }
 
-// ================= RLE =================
-function compressRLE(str){
-    let result='';
-    let count=1;
-    for(let i=0;i<str.length;i++){
-        if(str[i]===str[i+1]) count++;
-        else { result += count+str[i]; count=1; }
-    }
-    return result;
-}
-
-function decompressRLE(str){
-    let result='';
-    let matches = str.match(/\d+[A-Za-z0-9+/=]/g);
-    if(matches){
-        matches.forEach(m=>{
-            const num = parseInt(m.match(/\d+/)[0]);
-            const char = m.match(/[A-Za-z0-9+/=]/)[0];
-            result += char.repeat(num);
-        });
-    }
-    return result;
-}
-
 // ================= Conversion image -> texte compressé =================
 function convertImage(){
     const file = document.getElementById('imageInput').files[0];
@@ -152,17 +116,16 @@ function convertImage(){
 
     const img = new Image();
     const reader = new FileReader();
-
     reader.onload = function(e){ img.src = e.target.result; };
     reader.readAsDataURL(file);
 
     img.onload = function(){
-        // Redimensionnement max
+        // Redimensionnement max 1024x1024
         const MAX_SIZE = 1024;
         let width = img.width;
         let height = img.height;
-        if(width>MAX_SIZE){ height = Math.round(height*(MAX_SIZE/width)); width=MAX_SIZE; }
-        if(height>MAX_SIZE){ width = Math.round(width*(MAX_SIZE/height)); height=MAX_SIZE; }
+        if(width>MAX_SIZE){ height=Math.round(height*(MAX_SIZE/width)); width=MAX_SIZE; }
+        if(height>MAX_SIZE){ width=Math.round(width*(MAX_SIZE/height)); height=MAX_SIZE; }
 
         const canvas = document.createElement('canvas');
         canvas.width=width;
@@ -173,15 +136,14 @@ function convertImage(){
         let quality=0.9;
         function attemptCompression(){
             const base64 = canvas.toDataURL('image/jpeg',quality).split(',')[1];
-            const compressedText = compressRLE(base64);
-            const size = new Blob([compressedText]).size;
+            const size = new Blob([base64]).size;
             if(size > 999*1024 && quality>0.1){
                 quality-=0.05;
                 attemptCompression();
             } else if(size>999*1024){
                 errorMsg.textContent="Impossible de réduire à moins de 999Ko : l'image est trop grande.";
             } else {
-                const blob = new Blob([compressedText],{type:'text/plain'});
+                const blob = new Blob([base64],{type:'text/plain'});
                 const url = URL.createObjectURL(blob);
                 const link = document.getElementById('downloadLink');
                 link.href=url;
@@ -202,14 +164,16 @@ function convertTextToImage(){
 
     const reader = new FileReader();
     reader.onload=function(e){
-        const base64Data = decompressRLE(e.target.result);
+        const base64Data = e.target.result.trim();
+        if(base64Data.length === 0) return alert("Fichier vide ou corrompu.");
+
         const img = document.createElement('img');
         img.src='data:image/jpeg;base64,'+base64Data;
         img.className='converted';
         const output=document.getElementById('imageOutput');
         output.innerHTML='';
         output.appendChild(img);
-    }
+    };
     reader.readAsText(file);
 }
 </script>
