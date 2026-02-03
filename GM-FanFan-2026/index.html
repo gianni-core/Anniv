@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ma sélection de Némo</title>
+<title>Ma sélection de Némo - TXT</title>
 <style>
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f8ff;
+    font-family: Arial;
     text-align: center;
+    background-color: #f0f8ff;
     padding: 20px;
 }
 h1 {
@@ -16,20 +16,10 @@ h1 {
     font-size: 3em;
     margin-bottom: 30px;
 }
-.start-button, button, .nav-buttons a {
-    padding: 10px 20px;
-    font-size: 1.1em;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    margin: 5px;
-    background-color: #ff6347;
-    color: white;
-    transition: 0.3s;
+.image-section {
+    display: none;
+    margin-top: 30px;
 }
-.start-button:hover, button:hover, .nav-buttons a:hover { background-color: #ff4500; }
-.image-section { display: none; margin-top: 30px; }
 .image-section img {
     max-width: 80%;
     border-radius: 10px;
@@ -41,8 +31,17 @@ h1 {
     opacity: 1;
     transform: translateY(0);
 }
-#errorMsg { color:red; font-weight:bold; }
-#imageOutput img { max-width:80%; margin-top:20px; border-radius:10px; }
+.nav-buttons a {
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #ff6347;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.nav-buttons a:hover { background-color: #ff4500; }
 </style>
 </head>
 <body>
@@ -50,131 +49,61 @@ h1 {
 <h1>Ma sélection de Némo</h1>
 
 <div id="home">
-    <button class="start-button" onclick="startGallery()">Commencer</button>
-    <p>Ou utilisez <code>#create</code> dans l'URL pour ajouter vos images.</p>
+    <button onclick="startGallery()">Commencer</button>
 </div>
 
-<!-- Carrousel d'images -->
+<!-- Carrousel avec fichiers .txt -->
 <div class="image-section" id="Img1">
-    <img src="https://via.placeholder.com/400x300.png?text=Image+1" alt="Image 1" id="img1">
+    <div class="image-container" id="container1"></div>
     <div class="nav-buttons">
-        <a href="#Img2" onclick="showImage('img2')">Suivant</a>
+        <a href="#Img2" onclick="showImage('Img2')">Suivant</a>
     </div>
 </div>
 
 <div class="image-section" id="Img2">
-    <img src="https://via.placeholder.com/400x300.png?text=Image+2" alt="Image 2" id="img2">
+    <div class="image-container" id="container2"></div>
     <div class="nav-buttons">
-        <a href="#Img1" onclick="showImage('img1')">Précédent</a>
+        <a href="#Img1" onclick="showImage('Img1')">Précédent</a>
     </div>
-</div>
-
-<!-- Section création d'image texte -->
-<div id="createSection" style="display:none;">
-    <h2>Créer une image compressée</h2>
-    <input type="file" id="imageInput" accept="image/*"><br>
-    <button onclick="convertImage()">Convertir en texte</button>
-    <p id="errorMsg"></p>
-    <a id="downloadLink" style="display:none;">Télécharger image.txt</a>
-
-    <h3>Reconvertir un fichier texte en image</h3>
-    <input type="file" id="textInput" accept=".txt"><br>
-    <button onclick="convertTextToImage()">Afficher l'image</button>
-    <div id="imageOutput"></div>
 </div>
 
 <script>
 // ================= Carrousel =================
 function startGallery(){
     document.getElementById('home').style.display='none';
-    const firstSection = document.getElementById('Img1');
-    firstSection.style.display='block';
-    document.getElementById('img1').classList.add('show');
+    loadTxtImage('image1.txt','container1');
+    document.getElementById('Img1').style.display='block';
 }
 
-function showImage(imgId){
+function showImage(sectionId){
     document.querySelectorAll('.image-section').forEach(s=>s.style.display='none');
-    const section = document.getElementById(imgId.replace('img','Img'));
-    section.style.display='block';
-    const img = document.getElementById(imgId);
-    img.classList.remove('show');
-    setTimeout(()=>img.classList.add('show'),50);
-}
-
-// ================= Vérifier #create =================
-if(window.location.hash === '#create'){
-    document.getElementById('home').style.display='none';
-    document.getElementById('createSection').style.display='block';
-}
-
-// ================= Conversion image -> texte compressé =================
-function convertImage(){
-    const file = document.getElementById('imageInput').files[0];
-    const errorMsg = document.getElementById('errorMsg');
-    errorMsg.textContent='';
-    if(!file) return alert("Choisissez une image.");
-
-    const img = new Image();
-    const reader = new FileReader();
-    reader.onload = function(e){ img.src = e.target.result; };
-    reader.readAsDataURL(file);
-
-    img.onload = function(){
-        // Redimensionnement max 1024x1024
-        const MAX_SIZE = 1024;
-        let width = img.width;
-        let height = img.height;
-        if(width>MAX_SIZE){ height=Math.round(height*(MAX_SIZE/width)); width=MAX_SIZE; }
-        if(height>MAX_SIZE){ width=Math.round(width*(MAX_SIZE/height)); height=MAX_SIZE; }
-
-        const canvas = document.createElement('canvas');
-        canvas.width=width;
-        canvas.height=height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img,0,0,width,height);
-
-        let quality=0.9;
-        function attemptCompression(){
-            const base64 = canvas.toDataURL('image/jpeg',quality).split(',')[1];
-            const size = new Blob([base64]).size;
-            if(size > 999*1024 && quality>0.1){
-                quality-=0.05;
-                attemptCompression();
-            } else if(size>999*1024){
-                errorMsg.textContent="Impossible de réduire à moins de 999Ko : l'image est trop grande.";
-            } else {
-                const blob = new Blob([base64],{type:'text/plain'});
-                const url = URL.createObjectURL(blob);
-                const link = document.getElementById('downloadLink');
-                link.href=url;
-                link.download='image.txt';
-                link.style.display='inline';
-                link.textContent='Télécharger image.txt';
-                alert(`Image compressée (${Math.round(size/1024)} Ko) avec qualité=${Math.round(quality*100)}%`);
-            }
-        }
-        attemptCompression();
+    document.getElementById(sectionId).style.display='block';
+    const container = document.getElementById('container' + sectionId.replace('Img',''));
+    if(container.querySelector('img')) {
+        container.querySelector('img').classList.remove('show');
+        setTimeout(()=>container.querySelector('img').classList.add('show'),50);
     }
 }
 
-// ================= Reconvertir texte -> image =================
-function convertTextToImage(){
-    const file = document.getElementById('textInput').files[0];
-    if(!file) return alert("Choisissez un fichier texte.");
-
-    const reader = new FileReader();
-    reader.onload=function(e){
-        const base64Data = e.target.result.trim();
-        if(base64Data.length === 0) return alert("Fichier vide ou corrompu.");
-
+// ================= Charger et afficher fichier .txt =================
+function loadTxtImage(txtFile, containerId){
+    fetch(txtFile)
+    .then(res => {
+        if(!res.ok) throw new Error("Fichier non trouvé: "+txtFile);
+        return res.text();
+    })
+    .then(base64Data => {
         const img = document.createElement('img');
-        img.src='data:image/jpeg;base64,'+base64Data;
-        img.className='converted';
-        const output=document.getElementById('imageOutput');
-        output.innerHTML='';
-        output.appendChild(img);
-    };
-    reader.readAsText(file);
+        img.src = 'data:image/jpeg;base64,' + base64Data.trim();
+        img.className = 'show';
+        const container = document.getElementById(containerId);
+        container.innerHTML='';
+        container.appendChild(img);
+    })
+    .catch(err => {
+        const container = document.getElementById(containerId);
+        container.innerHTML='<p style="color:red;">Erreur: '+err.message+'</p>';
+    });
 }
 </script>
 </body>
