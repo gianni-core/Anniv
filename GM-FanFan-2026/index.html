@@ -3,43 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compression intelligente avec qualité</title>
+<title>Ma sélection de Némo</title>
 <style>
-body { font-family: Arial; text-align:center; padding:20px; }
-img.converted { max-width:80%; margin-top:20px; border-radius:10px; }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    text-align: center;
+    padding: 20px;
+}
+
+h1 {
+    color: #ff4500;
+    font-size: 3em;
+    margin-bottom: 30px;
+}
+
+.start-button, button, .nav-buttons a {
+    padding: 10px 20px;
+    font-size: 1.1em;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    margin: 5px;
+    background-color: #ff6347;
+    color: white;
+    transition: 0.3s;
+}
+.start-button:hover, button:hover, .nav-buttons a:hover {
+    background-color: #ff4500;
+}
+
+.image-section {
+    display: none;
+    margin-top: 30px;
+}
+
+.image-section img {
+    max-width: 80%;
+    border-radius: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s, transform 1s;
+}
+
+.image-section img.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 #errorMsg { color:red; font-weight:bold; }
+
+#imageOutput img { max-width:80%; margin-top:20px; border-radius:10px; }
 </style>
 </head>
 <body>
 
-<h1>Compression intelligente d'image</h1>
+<h1>Ma sélection de Némo</h1>
 
-<h2>Convertir une image en texte compressé</h2>
-<input type="file" id="imageInput" accept="image/*"><br>
-<button onclick="convertImage()">Convertir</button>
-<p id="errorMsg"></p>
-<a id="downloadLink" style="display:none;">Télécharger image.txt</a>
+<div id="home">
+    <button class="start-button" onclick="startGallery()">Commencer</button>
+    <p>Ou utilisez <code>#create</code> dans l'URL pour ajouter vos images compressées.</p>
+</div>
 
-<h2>Reconvertir le texte en image</h2>
-<input type="file" id="textInput" accept=".txt"><br>
-<button onclick="convertTextToImage()">Afficher l'image</button>
-<div id="imageOutput"></div>
+<!-- Carrousel d'images -->
+<div class="image-section" id="Img1">
+    <img src="image1.jpg" alt="Image 1" id="img1">
+    <div class="nav-buttons">
+        <a href="#Img2" onclick="showImage('img2')">Suivant</a>
+    </div>
+</div>
+
+<div class="image-section" id="Img2">
+    <img src="image2.jpg" alt="Image 2" id="img2">
+    <div class="nav-buttons">
+        <a href="#Img1" onclick="showImage('img1')">Précédent</a>
+    </div>
+</div>
+
+<!-- Section création d'image texte -->
+<div id="createSection" style="display:none;">
+    <h2>Créer une image compressée</h2>
+    <input type="file" id="imageInput" accept="image/*"><br>
+    <button onclick="convertImage()">Convertir en texte</button>
+    <p id="errorMsg"></p>
+    <a id="downloadLink" style="display:none;">Télécharger image.txt</a>
+
+    <h3>Reconvertir un fichier texte en image</h3>
+    <input type="file" id="textInput" accept=".txt"><br>
+    <button onclick="convertTextToImage()">Afficher l'image</button>
+    <div id="imageOutput"></div>
+</div>
 
 <script>
-// RLE simple
+// ================= Carrousel =================
+function startGallery(){
+    document.getElementById('home').style.display='none';
+    const firstSection = document.getElementById('Img1');
+    firstSection.style.display='block';
+    document.getElementById('img1').classList.add('show');
+}
+
+function showImage(imgId){
+    document.querySelectorAll('.image-section').forEach(s=>s.style.display='none');
+    const section = document.getElementById(imgId.replace('img','Img'));
+    section.style.display='block';
+    const img = document.getElementById(imgId);
+    img.classList.remove('show');
+    setTimeout(()=>img.classList.add('show'),50);
+}
+
+// ================= Vérifier #create =================
+if(window.location.hash === '#create'){
+    document.getElementById('home').style.display='none';
+    document.getElementById('createSection').style.display='block';
+}
+
+// ================= RLE =================
 function compressRLE(str){
-    let result = '';
-    let count = 1;
+    let result='';
+    let count=1;
     for(let i=0;i<str.length;i++){
         if(str[i]===str[i+1]) count++;
-        else { result += count + str[i]; count=1; }
+        else { result += count+str[i]; count=1; }
     }
     return result;
 }
 
-// Décompression
 function decompressRLE(str){
-    let result = '';
+    let result='';
     let matches = str.match(/\d+[A-Za-z0-9+/=]/g);
     if(matches){
         matches.forEach(m=>{
@@ -51,7 +143,7 @@ function decompressRLE(str){
     return result;
 }
 
-// Convertir image en texte compressé avec ajustement de qualité
+// ================= Conversion image -> texte compressé =================
 function convertImage(){
     const file = document.getElementById('imageInput').files[0];
     const errorMsg = document.getElementById('errorMsg');
@@ -61,34 +153,39 @@ function convertImage(){
     const img = new Image();
     const reader = new FileReader();
 
-    reader.onload = function(e){
-        img.src = e.target.result;
-    };
+    reader.onload = function(e){ img.src = e.target.result; };
     reader.readAsDataURL(file);
 
     img.onload = function(){
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img,0,0);
+        // Redimensionnement max
+        const MAX_SIZE = 1024;
+        let width = img.width;
+        let height = img.height;
+        if(width>MAX_SIZE){ height = Math.round(height*(MAX_SIZE/width)); width=MAX_SIZE; }
+        if(height>MAX_SIZE){ width = Math.round(width*(MAX_SIZE/height)); height=MAX_SIZE; }
 
-        let quality = 0.9; // qualité initiale
+        const canvas = document.createElement('canvas');
+        canvas.width=width;
+        canvas.height=height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img,0,0,width,height);
+
+        let quality=0.9;
         function attemptCompression(){
-            const base64 = canvas.toDataURL('image/jpeg', quality).split(',')[1];
+            const base64 = canvas.toDataURL('image/jpeg',quality).split(',')[1];
             const compressedText = compressRLE(base64);
             const size = new Blob([compressedText]).size;
-            if(size > 999*1024 && quality > 0.1){
-                quality -= 0.05;
+            if(size > 999*1024 && quality>0.1){
+                quality-=0.05;
                 attemptCompression();
-            } else if(size > 999*1024){
-                errorMsg.textContent = "Impossible de réduire à moins de 999Ko";
+            } else if(size>999*1024){
+                errorMsg.textContent="Impossible de réduire à moins de 999Ko : l'image est trop grande.";
             } else {
-                const blob = new Blob([compressedText], {type:'text/plain'});
+                const blob = new Blob([compressedText],{type:'text/plain'});
                 const url = URL.createObjectURL(blob);
                 const link = document.getElementById('downloadLink');
-                link.href = url;
-                link.download = 'image.txt';
+                link.href=url;
+                link.download='image.txt';
                 link.style.display='inline';
                 link.textContent='Télécharger image.txt';
                 alert(`Image compressée (${Math.round(size/1024)} Ko) avec qualité=${Math.round(quality*100)}%`);
@@ -98,24 +195,23 @@ function convertImage(){
     }
 }
 
-// Reconversion
+// ================= Reconvertir texte -> image =================
 function convertTextToImage(){
     const file = document.getElementById('textInput').files[0];
     if(!file) return alert("Choisissez un fichier texte.");
+
     const reader = new FileReader();
-    reader.onload = function(e){
+    reader.onload=function(e){
         const base64Data = decompressRLE(e.target.result);
         const img = document.createElement('img');
-        img.src = 'data:image/jpeg;base64,' + base64Data;
+        img.src='data:image/jpeg;base64,'+base64Data;
         img.className='converted';
-        const output = document.getElementById('imageOutput');
+        const output=document.getElementById('imageOutput');
         output.innerHTML='';
         output.appendChild(img);
     }
     reader.readAsText(file);
 }
 </script>
-
 </body>
 </html>
-
