@@ -2,122 +2,38 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ma sélection de Némo</title>
+<title>Test JSZip</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.11.0/jszip.min.js"></script>
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f8ff;
-    text-align: center;
-    padding: 20px;
-}
-h1 {
-    color: #ff4500;
-    font-size: 3em;
-    margin-bottom: 30px;
-}
-input, button {
-    margin: 10px;
-    padding: 10px;
-    font-size: 1em;
-}
-img.converted {
-    max-width: 80%;
-    margin-top: 20px;
-    border-radius: 10px;
-}
-#errorMsg {
-    color: red;
-    font-weight: bold;
-}
-</style>
 </head>
 <body>
-
-<h1>Ma sélection de Némo</h1>
-
-<div id="home">
-    <p>Bienvenue ! Utilisez <code>#create</code> dans l'URL pour créer votre image texte.</p>
-</div>
-
-<div id="createSection" style="display:none;">
-    <h2>Convertir une image en texte compressé</h2>
-    <input type="file" id="imageInput" accept="image/*"><br>
-    <button onclick="convertImage()">Convertir en ZIP</button>
-    <p id="errorMsg"></p>
-    <a id="downloadLink" style="display:none;">Télécharger image.zip</a>
-
-    <h3>Ou reconvertir un fichier ZIP en image :</h3>
-    <input type="file" id="zipInput" accept=".zip"><br>
-    <button onclick="extractZip()">Afficher l'image</button>
-    <div id="imageOutput"></div>
-</div>
-
+<input type="file" id="imageInput" accept="image/*">
+<button onclick="convertImage()">Convertir en ZIP</button>
+<a id="downloadLink" style="display:none;">Télécharger ZIP</a>
 <script>
-// Afficher la section create si #create
-if(window.location.hash === '#create'){
-    document.getElementById('home').style.display = 'none';
-    document.getElementById('createSection').style.display = 'block';
-}
-
-// Convertir l'image en Base64 puis en ZIP
 function convertImage(){
     const file = document.getElementById('imageInput').files[0];
-    const errorMsg = document.getElementById('errorMsg');
-    errorMsg.textContent = '';
-    if(!file) return alert("Veuillez choisir une image.");
+    if(!file) return alert("Choisissez une image.");
 
     const reader = new FileReader();
     reader.onload = async function(e){
-        const base64Data = e.target.result.split(',')[1]; // Supprime data:image
-
+        const base64Data = e.target.result.split(',')[1];
         const zip = new JSZip();
         zip.file("image.txt", base64Data);
 
         const content = await zip.generateAsync({type:"blob", compression:"DEFLATE"});
-        if(content.size > 1 * 1024 * 1024){ // 1 Mo
-            errorMsg.textContent = "Erreur : le fichier compressé dépasse 1 Mo. Choisissez une image plus petite.";
-            document.getElementById('downloadLink').style.display = 'none';
+        if(content.size > 1024*1024){
+            alert("Erreur : fichier compressé > 1 Mo");
             return;
         }
 
-        const url = URL.createObjectURL(content);
         const link = document.getElementById('downloadLink');
-        link.href = url;
-        link.download = 'image.zip';
-        link.style.display = 'inline';
-        link.textContent = 'Télécharger image.zip';
-        alert("Image convertie et compressée ! Téléchargez le fichier ZIP.");
+        link.href = URL.createObjectURL(content);
+        link.download = "image.zip";
+        link.style.display = "inline";
+        link.textContent = "Télécharger ZIP";
     }
     reader.readAsDataURL(file);
 }
-
-// Extraire le ZIP et afficher l'image
-function extractZip(){
-    const file = document.getElementById('zipInput').files[0];
-    if(!file) return alert("Veuillez choisir un fichier ZIP.");
-
-    const reader = new FileReader();
-    reader.onload = function(e){
-        JSZip.loadAsync(e.target.result).then(function(zip){
-            const txtFile = zip.file("image.txt");
-            if(!txtFile) return alert("Fichier image.txt introuvable dans le ZIP.");
-
-            txtFile.async("string").then(function(base64Data){
-                const img = document.createElement('img');
-                img.src = 'data:image/jpeg;base64,' + base64Data;
-                img.className = 'converted';
-
-                const output = document.getElementById('imageOutput');
-                output.innerHTML = '';
-                output.appendChild(img);
-            });
-        });
-    }
-    reader.readAsArrayBuffer(file);
-}
 </script>
-
 </body>
 </html>
