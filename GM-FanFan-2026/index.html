@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compression Base64 par caractères</title>
+<title>Compression intelligente avec qualité</title>
 <style>
 body { font-family: Arial; text-align:center; padding:20px; }
 img.converted { max-width:80%; margin-top:20px; border-radius:10px; }
@@ -12,7 +12,7 @@ img.converted { max-width:80%; margin-top:20px; border-radius:10px; }
 </head>
 <body>
 
-<h1>Compression Base64 avec caractères</h1>
+<h1>Compression intelligente d'image</h1>
 
 <h2>Convertir une image en texte compressé</h2>
 <input type="file" id="imageInput" accept="image/*"><br>
@@ -26,27 +26,23 @@ img.converted { max-width:80%; margin-top:20px; border-radius:10px; }
 <div id="imageOutput"></div>
 
 <script>
-// RLE simple pour Base64
+// RLE simple
 function compressRLE(str){
     let result = '';
     let count = 1;
-    for(let i=0; i<str.length; i++){
-        if(str[i] === str[i+1]){
-            count++;
-        } else {
-            result += count + str[i];
-            count = 1;
-        }
+    for(let i=0;i<str.length;i++){
+        if(str[i]===str[i+1]) count++;
+        else { result += count + str[i]; count=1; }
     }
     return result;
 }
 
-// Décompression RLE
+// Décompression
 function decompressRLE(str){
     let result = '';
     let matches = str.match(/\d+[A-Za-z0-9+/=]/g);
-    if(matches) {
-        matches.forEach(m => {
+    if(matches){
+        matches.forEach(m=>{
             const num = parseInt(m.match(/\d+/)[0]);
             const char = m.match(/[A-Za-z0-9+/=]/)[0];
             result += char.repeat(num);
@@ -55,58 +51,71 @@ function decompressRLE(str){
     return result;
 }
 
-// Convertir image en texte compressé
+// Convertir image en texte compressé avec ajustement de qualité
 function convertImage(){
     const file = document.getElementById('imageInput').files[0];
     const errorMsg = document.getElementById('errorMsg');
-    errorMsg.textContent = '';
+    errorMsg.textContent='';
     if(!file) return alert("Choisissez une image.");
 
+    const img = new Image();
     const reader = new FileReader();
+
     reader.onload = function(e){
-        const base64Data = e.target.result.split(',')[1]; // supprimer data:image
-        const compressed = compressRLE(base64Data);
-
-        // Vérification taille
-        if(new Blob([compressed]).size > 1024*1024){
-            errorMsg.textContent = "Erreur : fichier compressé > 1 Mo. Choisissez une image plus petite.";
-            document.getElementById('downloadLink').style.display = 'none';
-            return;
-        }
-
-        const blob = new Blob([compressed], {type:'text/plain'});
-        const url = URL.createObjectURL(blob);
-        const link = document.getElementById('downloadLink');
-        link.href = url;
-        link.download = 'image.txt';
-        link.style.display = 'inline';
-        link.textContent = 'Télécharger image.txt';
-        alert("Image convertie et compressée !");
+        img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+
+    img.onload = function(){
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img,0,0);
+
+        let quality = 0.9; // qualité initiale
+        function attemptCompression(){
+            const base64 = canvas.toDataURL('image/jpeg', quality).split(',')[1];
+            const compressedText = compressRLE(base64);
+            const size = new Blob([compressedText]).size;
+            if(size > 999*1024 && quality > 0.1){
+                quality -= 0.05;
+                attemptCompression();
+            } else if(size > 999*1024){
+                errorMsg.textContent = "Impossible de réduire à moins de 999Ko";
+            } else {
+                const blob = new Blob([compressedText], {type:'text/plain'});
+                const url = URL.createObjectURL(blob);
+                const link = document.getElementById('downloadLink');
+                link.href = url;
+                link.download = 'image.txt';
+                link.style.display='inline';
+                link.textContent='Télécharger image.txt';
+                alert(`Image compressée (${Math.round(size/1024)} Ko) avec qualité=${Math.round(quality*100)}%`);
+            }
+        }
+        attemptCompression();
+    }
 }
 
-// Reconversion du texte en image
+// Reconversion
 function convertTextToImage(){
     const file = document.getElementById('textInput').files[0];
     if(!file) return alert("Choisissez un fichier texte.");
-
     const reader = new FileReader();
     reader.onload = function(e){
-        const compressed = e.target.result;
-        const base64Data = decompressRLE(compressed);
-
+        const base64Data = decompressRLE(e.target.result);
         const img = document.createElement('img');
         img.src = 'data:image/jpeg;base64,' + base64Data;
-        img.className = 'converted';
-
+        img.className='converted';
         const output = document.getElementById('imageOutput');
-        output.innerHTML = '';
+        output.innerHTML='';
         output.appendChild(img);
-    };
+    }
     reader.readAsText(file);
 }
 </script>
 
 </body>
 </html>
+
