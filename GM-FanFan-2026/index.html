@@ -5,120 +5,93 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ma sélection de Némo</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f8ff;
-        text-align: center;
-        padding: 20px;
-    }
-
-    h1 {
-        color: #ff4500;
-        font-size: 3em;
-        margin-bottom: 30px;
-    }
-
-    .start-button {
-        padding: 15px 30px;
-        font-size: 1.2em;
-        background-color: #ff6347;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: background 0.3s;
-    }
-
-    .start-button:hover {
-        background-color: #ff4500;
-    }
-
-    .image-section {
-        display: none; /* Masqué au début */
-        margin-top: 30px;
-    }
-
-    .image-section img {
-        max-width: 80%;
-        border-radius: 10px;
-        opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 1s ease, transform 1s ease;
-    }
-
-    .image-section img.show {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .nav-buttons {
-        margin-top: 20px;
-    }
-
-    .nav-buttons a {
-        text-decoration: none;
-        padding: 10px 20px;
-        margin: 0 10px;
-        background-color: #ff6347;
-        color: white;
-        border-radius: 5px;
-        transition: background 0.3s;
-    }
-
-    .nav-buttons a:hover {
-        background-color: #ff4500;
-    }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    text-align: center;
+    padding: 20px;
+}
+h1 {
+    color: #ff4500;
+    font-size: 3em;
+    margin-bottom: 30px;
+}
+input, button {
+    margin: 10px;
+    padding: 10px;
+    font-size: 1em;
+}
+img.converted {
+    max-width: 80%;
+    margin-top: 20px;
+    border-radius: 10px;
+}
 </style>
 </head>
 <body>
 
 <h1>Ma sélection de Némo</h1>
 
-<button class="start-button" onclick="startGallery()">Commencer</button>
-
-<!-- Image 1 -->
-<div class="image-section" id="Img1">
-    <img src="image1.jpg" alt="Image 1" id="img1">
-    <div class="nav-buttons">
-        <a href="#Img2" onclick="showImage('img2')">Suivant</a>
-    </div>
+<div id="home">
+    <p>Bienvenue ! Utilisez <code>#create</code> dans l'URL pour créer votre image texte.</p>
 </div>
 
-<!-- Image 2 -->
-<div class="image-section" id="Img2">
-    <img src="image2.jpg" alt="Image 2" id="img2">
-    <div class="nav-buttons">
-        <a href="#Img1" onclick="showImage('img1')">Précédent</a>
-        <a href="#Img3" onclick="showImage('img3')">Suivant</a>
-    </div>
-</div>
-
-<!-- Image 3 -->
-<div class="image-section" id="Img3">
-    <img src="image3.jpg" alt="Image 3" id="img3">
-    <div class="nav-buttons">
-        <a href="#Img2" onclick="showImage('img2')">Précédent</a>
-    </div>
+<div id="createSection" style="display:none;">
+    <h2>Convertir une image en texte</h2>
+    <input type="file" id="imageInput" accept="image/*"><br>
+    <button onclick="convertImage()">Convertir en texte</button>
+    <a id="downloadLink" style="display:none;">Télécharger le fichier image.txt</a>
+    <h3>Ou reconvertir un fichier texte en image :</h3>
+    <input type="file" id="textInput" accept=".txt"><br>
+    <button onclick="convertTextToImage()">Afficher l'image</button>
+    <div id="imageOutput"></div>
 </div>
 
 <script>
-function startGallery() {
-    document.querySelector('.start-button').style.display = 'none';
-    const firstSection = document.getElementById('Img1');
-    firstSection.style.display = 'block';
-    document.getElementById('img1').classList.add('show');
+// Vérifier l'URL pour afficher #create
+if(window.location.hash === '#create'){
+    document.getElementById('home').style.display = 'none';
+    document.getElementById('createSection').style.display = 'block';
 }
 
-function showImage(imgId) {
-    // Masquer toutes les sections
-    document.querySelectorAll('.image-section').forEach(section => section.style.display = 'none');
-    // Afficher la section correspondante
-    const section = document.getElementById(imgId.replace('img', 'Img'));
-    section.style.display = 'block';
-    // Animation
-    const img = document.getElementById(imgId);
-    img.classList.remove('show'); // Reset
-    setTimeout(() => img.classList.add('show'), 50); // Petit délai pour effet
+// Convertir l'image en Base64 et proposer un téléchargement .txt
+function convertImage(){
+    const file = document.getElementById('imageInput').files[0];
+    if(!file) return alert("Veuillez choisir une image.");
+
+    const reader = new FileReader();
+    reader.onload = function(e){
+        const base64Data = e.target.result.split(',')[1]; // Supprime le préfixe data:image
+        const blob = new Blob([base64Data], {type: 'text/plain'});
+        const url = URL.createObjectURL(blob);
+
+        const link = document.getElementById('downloadLink');
+        link.href = url;
+        link.download = 'image.txt';
+        link.style.display = 'inline';
+        link.textContent = 'Télécharger image.txt';
+        alert("Image convertie en texte ! Téléchargez le fichier image.txt");
+    }
+    reader.readAsDataURL(file);
+}
+
+// Reconversion du texte en image
+function convertTextToImage(){
+    const file = document.getElementById('textInput').files[0];
+    if(!file) return alert("Veuillez choisir un fichier texte.");
+
+    const reader = new FileReader();
+    reader.onload = function(e){
+        const base64Data = e.target.result;
+        const img = document.createElement('img');
+        img.src = 'data:image/jpeg;base64,' + base64Data;
+        img.className = 'converted';
+
+        const output = document.getElementById('imageOutput');
+        output.innerHTML = '';
+        output.appendChild(img);
+    }
+    reader.readAsText(file);
 }
 </script>
 
