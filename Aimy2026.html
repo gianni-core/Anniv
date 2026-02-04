@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ton Cadeau Panda Roux 🐾</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #fffafa; /* Un blanc rosé très doux */
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #intro {
+            text-align: center;
+            z-index: 100;
+        }
+
+        .btn-start {
+            padding: 20px 40px;
+            font-size: 1.4rem;
+            background: linear-gradient(45deg, #d35400, #e67e22);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(211, 84, 0, 0.3);
+            transition: all 0.4s ease;
+        }
+
+        .btn-start:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 30px rgba(211, 84, 0, 0.5);
+        }
+
+        #message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            border: 2px solid #ffdbd1;
+            width: 80%;
+            max-width: 450px;
+        }
+
+        .panda-cadeau {
+            position: absolute;
+            width: 150px; /* Taille idéale */
+            border-radius: 20px; /* Coins arrondis pour le côté mignon */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            pointer-events: none;
+            z-index: 10;
+            animation: chute linear forwards, flottement 3s ease-in-out infinite alternate;
+        }
+
+        /* Animation de descente */
+        @keyframes chute {
+            0% { transform: translateY(-200px) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Petit balancement pour l'émotion */
+        @keyframes flottement {
+            from { margin-left: -30px; }
+            to { margin-left: 30px; }
+        }
+
+        h1 { color: #d35400; font-size: 2rem; margin-bottom: 15px; }
+        p { color: #8d6e63; font-size: 1.2rem; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <div id="intro">
+        <button class="btn-start" onclick="demarrer()">Ouvrir ton cadeau... 🎁</button>
+    </div>
+
+    <div id="message">
+        <h1>Rien que pour toi...</h1>
+        <p>Parce que tu mérites toute la douceur du monde, voici une pluie de petits pandas roux. <br> ✨🐾✨</p>
+    </div>
+
+    <script>
+        // J'ai intégré les images correspondantes à tes liens
+        const imagesSelectionnees = [
+            'https://shop.wwf.ca/cdn/shop/products/Red-Panda_800x.jpg', // WWF
+            'https://www.anigaido.com/storage/images/fiches/animaux/panda-roux/panda-roux-1.jpg', // Anigaido
+            'https://www.rangerclub.be/wp-content/uploads/2020/03/Panda-roux-768x512.jpg', // Ranger Club
+            'https://images.squarespace-cdn.com/content/v1/59ef624929f187311790407d/1557843483259-2K8T28IDV4X9R4H3K7V0/Panda+Roux+Auvergne.jpg', // Paris Match / Auvergne
+            'https://i.redd.it/f8e9p7z6e7u51.jpg', // Reddit style
+            'https://i.pinimg.com/originals/81/2a/39/812a39626c117b9b187515647568533c.jpg', // Pinterest style
+            'https://i.pinimg.com/originals/e2/2e/0f/e22e0f4c0840590a9316d84a754f9a39.jpg'  // Pinterest style
+        ];
+
+        function demarrer() {
+            document.getElementById('intro').style.display = 'none';
+            document.getElementById('message').style.display = 'block';
+
+            // On lance la pluie de pandas
+            setInterval(genererPanda, 600);
+        }
+
+        function genererPanda() {
+            const img = document.createElement('img');
+            img.src = imagesSelectionnees[Math.floor(Math.random() * imagesSelectionnees.length)];
+            img.classList.add('panda-cadeau');
+            
+            // Apparence aléatoire
+            img.style.left = Math.random() * 85 + "vw";
+            const duree = Math.random() * 5 + 5; // Entre 5 et 10 secondes pour une chute lente
+            img.style.animationDuration = duree + "s, 3s";
+            
+            // Taille variée pour la profondeur
+            const taille = Math.random() * 100 + 100; 
+            img.style.width = taille + "px";
+
+            document.body.appendChild(img);
+
+            // Nettoyage
+            setTimeout(() => { img.remove(); }, duree * 1000);
+        }
+    </script>
+</body>
+</html>
