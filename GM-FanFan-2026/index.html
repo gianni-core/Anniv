@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma sélection de Némo - Edition Spéciale</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>15 Souvenirs de Némo - Edition Spéciale</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #ff6347;
             --primary-dark: #ff4500;
-            --glass: rgba(255, 255, 255, 0.2);
+            --glass: rgba(255, 255, 255, 0.25);
         }
 
         body {
@@ -19,126 +19,99 @@
             padding: 0;
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: background-color 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: background-color 1.5s ease;
             overflow-x: hidden;
-            background-color: #e0f7fa; /* Fond initial doux */
+            background-color: #f0faff;
         }
 
-        /* --- Animation de bulles en arrière-plan --- */
-        .bubbles {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
-        .bubble {
-            position: absolute;
-            bottom: -100px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            animation: rise 10s infinite ease-in;
-        }
+        /* --- Bulles animées --- */
+        .bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .bubble { position: absolute; bottom: -100px; background: rgba(255, 255, 255, 0.4); border-radius: 50%; animation: rise 10s infinite ease-in; }
         @keyframes rise {
             0% { transform: translateY(0) scale(1); opacity: 0; }
-            50% { opacity: 0.5; }
+            50% { opacity: 0.6; }
             100% { transform: translateY(-110vh) scale(1.5); opacity: 0; }
+        }
+
+        .main-container {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 700px;
+            position: relative;
         }
 
         h1 {
             font-family: 'Fredoka One', cursive;
             color: var(--primary-dark);
-            font-size: 3.5em;
-            margin-bottom: 30px;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            letter-spacing: 2px;
+            margin: 10px 0;
+            font-size: 2.2em;
         }
 
-        /* --- Conteneur Principal --- */
-        .main-container {
-            background: var(--glass);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 30px;
-            padding: 40px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-            max-width: 90%;
-            width: 800px;
-            min-height: 400px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        /* --- Zone Image --- */
+        #gallery-zone { display: none; }
+        
+        .image-wrapper {
+            position: relative;
+            margin-bottom: 20px;
         }
 
-        .image-section {
-            display: none;
-            width: 100%;
-            animation: fadeIn 0.8s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .image-section img {
+        img {
             max-width: 100%;
-            max-height: 500px;
+            max-height: 450px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             opacity: 0;
-            transform: scale(0.98);
-            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: scale(0.95);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .image-section img.show {
-            opacity: 1;
-            transform: scale(1);
+        img.show { opacity: 1; transform: scale(1); }
+
+        /* --- Personnalisation par image --- */
+        .caption-box {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            min-height: 50px;
+            font-style: italic;
+            color: #333;
         }
 
-        /* --- Boutons Stylisés --- */
-        .nav-buttons {
-            margin-top: 30px;
-            display: flex;
-            gap: 20px;
-            justify-content: center;
+        .progress-indicator {
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            font-size: 0.9em;
         }
 
-        button, .btn-nav {
-            padding: 15px 35px;
+        /* --- Boutons --- */
+        .nav-buttons { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
+        
+        button {
+            padding: 12px 28px;
             background: var(--primary);
             border: none;
             color: white;
             font-weight: 600;
-            font-size: 1.1em;
             border-radius: 50px;
             cursor: pointer;
-            text-decoration: none;
-            box-shadow: 0 8px 15px rgba(255, 99, 71, 0.3);
-            transition: all 0.3s ease;
-            display: inline-block;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 99, 71, 0.3);
         }
 
-        button:hover, .btn-nav:hover {
-            background: var(--primary-dark);
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 12px 20px rgba(255, 69, 0, 0.4);
-        }
+        button:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        button:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-prev { background: rgba(255, 255, 255, 0.5); color: #444; }
 
-        button:active, .btn-nav:active {
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: #333;
-            box-shadow: none;
-            border: 1px solid rgba(0,0,0,0.1);
-        }
     </style>
 </head>
 <body>
@@ -146,119 +119,125 @@
     <div class="bubbles" id="bubbleContainer"></div>
 
     <div class="main-container">
-        <h1>Ma sélection de Némo</h1>
-
-        <div id="home">
-            <p style="font-size: 1.2em; color: #444; margin-bottom: 25px;">Prépare-toi pour une plongée merveilleuse...</p>
-            <button onclick="startGallery()">Découvrir le cadeau 🎁</button>
+        <div id="home-screen">
+            <h1>Joyeux Anniversaire !</h1>
+            <p>Voici 15 moments inoubliables de Némo</p>
+            <button onclick="startGallery()">Découvrir l'album ✨</button>
         </div>
 
-        <div class="image-section" id="Img1">
-            <div class="image-container" id="container1"></div>
-            <div class="nav-buttons">
-                <a href="javascript:void(0)" class="btn-nav" onclick="showImage('Img2')">Suivant ✨</a>
+        <div id="gallery-zone">
+            <div class="progress-indicator" id="counter">Image 1 / 15</div>
+            
+            <div class="image-wrapper">
+                <div id="image-container"></div>
             </div>
-        </div>
 
-        <div class="image-section" id="Img2">
-            <div class="image-container" id="container2"></div>
+            <div class="caption-box" id="caption">
+                </div>
+
             <div class="nav-buttons">
-                <a href="javascript:void(0)" class="btn-nav btn-secondary" onclick="showImage('Img1')">⬅ Retour</a>
+                <button class="btn-prev" id="prevBtn" onclick="changeImage(-1)">Précédent</button>
+                <button id="nextBtn" onclick="changeImage(1)">Suivant</button>
             </div>
         </div>
     </div>
 
 <script>
-// Génération de bulles aléatoires
-const bubbleContainer = document.getElementById('bubbleContainer');
-for (let i = 0; i < 15; i++) {
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble';
-    const size = Math.random() * 60 + 10 + 'px';
-    bubble.style.width = size;
-    bubble.style.height = size;
-    bubble.style.left = Math.random() * 100 + '%';
-    bubble.style.animationDelay = Math.random() * 8 + 's';
-    bubble.style.animationDuration = Math.random() * 5 + 7 + 's';
-    bubbleContainer.appendChild(bubble);
+// ================= CONFIGURATION DES 15 IMAGES =================
+// Personnalise les légendes ci-dessous
+const album = [
+    { file: "image1.txt", text: "Le début de l'aventure ! 🌊" },
+    { file: "image2.txt", text: "Ce sourire incroyable... ✨" },
+    { file: "image3.txt", text: "Une journée mémorable au soleil ☀️" },
+    { file: "image4.txt", text: "Némo en mode explorateur 🔍" },
+    { file: "image5.txt", text: "La fois où on a bien ri ! 😂" },
+    { file: "image6.txt", text: "Un moment de calme et de douceur ☁️" },
+    { file: "image7.txt", text: "Quel style ! Toujours au top 😎" },
+    { file: "image8.txt", text: "Souvenir d'une soirée magique 🌙" },
+    { file: "image9.txt", text: "Le plus beau profil de l'océan 🐠" },
+    { file: "image10.txt", text: "Une petite pause bien méritée ☕" },
+    { file: "image11.txt", text: "Toujours prêt pour de nouveaux défis 💪" },
+    { file: "image12.txt", text: "Cette photo est vraiment ma préférée ❤️" },
+    { file: "image13.txt", text: "Regardez ce regard déterminé ! ⚡" },
+    { file: "image14.txt", text: "Presque la fin du voyage... 🎈" },
+    { file: "image15.txt", text: "Bon anniversaire, reste comme tu es ! 🎉" }
+];
+
+let currentIndex = 0;
+
+// ================= SYSTÈME DE GALERIE =================
+
+function startGallery() {
+    document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('gallery-zone').style.display = 'block';
+    loadContent(0);
 }
 
-// ================= Carrousel =================
-function startGallery(){
-    document.getElementById('home').style.display='none';
-    loadTxtImage('image1.txt','container1');
-    // On précharge aussi la 2ème si besoin
-    loadTxtImage('image2.txt','container2'); 
-    document.getElementById('Img1').style.display='block';
-}
-
-function showImage(sectionId){
-    document.querySelectorAll('.image-section').forEach(s => {
-        s.style.display='none';
-    });
-    
-    const target = document.getElementById(sectionId);
-    target.style.display='block';
-    
-    const img = target.querySelector('img');
-    if(img){
-        img.classList.remove('show');
-        // Petit délai pour déclencher l'animation CSS
-        setTimeout(() => {
-            img.classList.add('show');
-            adaptBackground(img);
-        }, 100);
+function changeImage(direction) {
+    currentIndex += direction;
+    if(currentIndex >= 0 && currentIndex < album.length) {
+        loadContent(currentIndex);
     }
 }
 
-// ================= Charger fichier .txt (Inchangé mais sécurisé) =================
-function loadTxtImage(txtFile, containerId){
-    fetch(txtFile)
-    .then(res => {
-        if(!res.ok) throw new Error("Fichier introuvable");
-        return res.text();
-    })
+function loadContent(index) {
+    const data = album[index];
+    const container = document.getElementById('image-container');
+    const caption = document.getElementById('caption');
+    const counter = document.getElementById('counter');
+
+    // Mise à jour interface
+    counter.innerText = `Souvenir ${index + 1} / ${album.length}`;
+    caption.innerText = data.text;
+    
+    // Gestion des boutons
+    document.getElementById('prevBtn').disabled = (index === 0);
+    document.getElementById('nextBtn').innerText = (index === album.length - 1) ? "Revoir" : "Suivant";
+    
+    // Si on arrive au bout et qu'on clique sur "Revoir"
+    if(index === album.length) { currentIndex = 0; loadContent(0); return; }
+
+    // Chargement de l'image (Base64)
+    fetch(data.file)
+    .then(res => res.text())
     .then(base64Data => {
+        container.innerHTML = '';
         const img = document.createElement('img');
         img.src = 'data:image/jpeg;base64,' + base64Data.trim();
+        
         img.onload = () => {
             img.classList.add('show');
-            if (document.getElementById(containerId).parentElement.style.display !== 'none') {
-                adaptBackground(img);
-            }
+            adaptBackground(img);
         };
-        const container = document.getElementById(containerId);
-        container.innerHTML='';
         container.appendChild(img);
     })
     .catch(err => {
-        console.error(err);
-        document.getElementById(containerId).innerHTML = `<p style="color:red;">Erreur de chargement de l'image</p>`;
+        container.innerHTML = `<p style="color:red;">Fichier ${data.file} manquant</p>`;
     });
 }
 
-// ================= Couleur dominante (Optimisée) =================
 function adaptBackground(img){
-    try {
-        const canvas = document.createElement('canvas');
-        canvas.width = 10;
-        canvas.height = 10;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, 10, 10);
-        const data = ctx.getImageData(0, 0, 10, 10).data;
-        let r=0, g=0, b=0;
-        for(let i=0; i<data.length; i+=4){
-            r += data[i]; g += data[i+1]; b += data[i+2];
-        }
-        const pxCount = data.length/4;
-        r=Math.round(r/pxCount);
-        g=Math.round(g/pxCount);
-        b=Math.round(b/pxCount);
-        // On utilise un RGBA avec une opacité un peu plus forte pour le look premium
-        document.body.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
-    } catch(e) {
-        console.log("Analyse couleur impossible (CORS ou image vide)");
-    }
+    const canvas = document.createElement('canvas');
+    canvas.width = 10; canvas.height = 10;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img,0,0,10,10);
+    const data = ctx.getImageData(0,0,10,10).data;
+    let r=0,g=0,b=0;
+    for(let i=0;i<data.length;i+=4){ r += data[i]; g += data[i+1]; b += data[i+2]; }
+    const pxCount = data.length/4;
+    document.body.style.backgroundColor = `rgba(${Math.round(r/pxCount)}, ${Math.round(g/pxCount)}, ${Math.round(b/pxCount)}, 0.4)`;
+}
+
+// Bulles décoratives
+const bubbleContainer = document.getElementById('bubbleContainer');
+for (let i = 0; i < 12; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const s = Math.random() * 50 + 10 + 'px';
+    b.style.width = s; b.style.height = s;
+    b.style.left = Math.random() * 100 + '%';
+    b.style.animationDelay = Math.random() * 8 + 's';
+    bubbleContainer.appendChild(b);
 }
 </script>
 </body>
