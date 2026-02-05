@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Cadeau de Rosalie</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            background: #1a1a1a; /* Fond sombre cohérent */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        h1 { color: #ffcc00; margin-bottom: 40px; }
+
+        /* --- Étape 1 : Le Bouton d'appel --- */
+        #callBtn {
+            font-size: 1.5rem;
+            padding: 20px 40px;
+            background: #4d79ff;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(77, 121, 255, 0.4);
+            transition: transform 0.2s, background 0.3s;
+            animation: pulse 2s infinite;
+        }
+        #callBtn:hover { transform: scale(1.05); background: #3a64e6; }
+        #callBtn:active { transform: scale(0.95); }
+
+        /* Animation de pulsation pour le bouton */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(77, 121, 255, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(77, 121, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(77, 121, 255, 0); }
+        }
+
+
+        /* --- Étape 2 : La Révélation (cachée au début) --- */
+        #reveal-container {
+            display: none; /* Caché par défaut */
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Style de l'image du chat */
+        .cat-photo {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 50%; /* Cercle parfait */
+            border: 8px solid white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            /* Animation d'apparition */
+            animation: popIn 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+
+        /* Bulle de dialogue style BD */
+        .speech-bubble {
+            position: relative;
+            background: #ffffff;
+            color: #333;
+            padding: 20px 30px;
+            border-radius: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-top: 30px;
+            max-width: 80%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0; /* Invisible au début */
+            /* Apparaît avec un léger retard après le chat */
+            animation: slideUpFade 0.8s ease-out 0.5s forwards;
+        }
+        /* Le petit triangle sous la bulle */
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border: 20px solid transparent;
+            border-bottom-color: #ffffff;
+            border-top: 0;
+            margin-left: -20px;
+            margin-top: -20px;
+        }
+
+
+        /* --- Animations JS --- */
+        @keyframes popIn { from { transform: scale(0) rotate(-30deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+        @keyframes slideUpFade { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+
+        /* --- Bouton Retour (commun) --- */
+        .btn-retour {
+            margin-top: 60px;
+            padding: 12px 30px;
+            background: #ff4d4d;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: 0.3s;
+            opacity: 0.6;
+        }
+        .btn-retour:hover { opacity: 1; transform: translateY(-3px); }
+    </style>
+</head>
+<body>
+
+    <h1>Une surprise t'attend...</h1>
+
+    <button id="callBtn">📞 Appeler Rosalie le chat</button>
+
+    <div id="reveal-container">
+        <img src="rosalie.jpg" alt="Le chat Rosalie" class="cat-photo">
+        
+        <div class="speech-bubble">
+            "Miaou ! Joyeux anniversaire ! 😺🎉<br>
+            <small style="font-size: 0.9rem; font-weight: normal;">(C'est de la part de Rosalie !)</small>"
+        </div>
+    </div>
+
+
+    <a href="https://gianni-core.github.io/Anniv/Mumu2026/" class="btn-retour">Retour au menu principal</a>
+
+
+    <script>
+        const callBtn = document.getElementById('callBtn');
+        const revealContainer = document.getElementById('reveal-container');
+        const title = document.querySelector('h1');
+
+        callBtn.addEventListener('click', function() {
+            // 1. Faire disparaître le bouton
+            this.style.display = 'none';
+            // Changer le titre
+            title.textContent = "Surprise !";
+
+            // 2. Afficher la section de révélation
+            revealContainer.style.display = 'flex';
+
+            // 3. Lancer les confettis (grâce à la librairie incluse en haut)
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+              var timeLeft = animationEnd - Date.now();
+              if (timeLeft <= 0) { return clearInterval(interval); }
+              var particleCount = 50 * (timeLeft / duration);
+              // Confettis venant des deux côtés
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        });
+    </script>
+
+</body>
+</html>
