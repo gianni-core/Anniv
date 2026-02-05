@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { background: #1a1a1a; color: white; display: flex; flex-direction: column; height: 100vh; margin: 0; align-items: center; justify-content: center; font-family: sans-serif; text-align: center; }
+        .gift-box { font-size: 100px; cursor: pointer; transition: 0.3s; text-decoration: none; display: block; }
+        .gift-box:hover { transform: scale(1.1); }
+        .btn-retour { margin-top: 40px; padding: 10px 20px; background: #ff4d4d; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        p { margin-top: 20px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <h1>Ton premier cadeau !</h1>
+    
+    <a href="pp.png" download="pp_whatsapp.png" class="gift-box" id="downloadBtn">🎁</a>
+    
+    <p id="msg">Clique sur le cadeau pour télécharger ta nouvelle PP !</p>
+
+    <a href="https://gianni-core.github.io/Anniv/Mumu2026/" class="btn-retour">Retour au menu</a>
+
+    <script>
+        const btn = document.getElementById('downloadBtn');
+        const msg = document.getElementById('msg');
+
+        btn.addEventListener('click', function(e) {
+            const now = Date.now();
+            const lastClick = localStorage.getItem('lastDownload');
+            const cooldown = 2 * 60 * 1000; // 2 minutes
+
+            if (lastClick && (now - lastClick < cooldown)) {
+                e.preventDefault();
+                const restant = Math.ceil((cooldown - (now - lastClick)) / 1000);
+                alert(`Patience ! Réessaie dans ${restant} secondes.`);
+            } else {
+                localStorage.setItem('lastDownload', now);
+                msg.innerText = "Téléchargement lancé !";
+                msg.style.color = "#2ecc71";
+            }
+        });
+    </script>
+
+</body>
+</html>
