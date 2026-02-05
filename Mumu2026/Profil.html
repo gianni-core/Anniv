@@ -2,23 +2,93 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadeau 1</title>
     <style>
-        body { background: #1a1a1a; color: white; display: flex; flex-direction: column; height: 100vh; margin: 0; align-items: center; justify-content: center; font-family: sans-serif; text-align: center; }
-        .gift-box { font-size: 100px; cursor: pointer; transition: 0.3s; text-decoration: none; display: block; }
-        .gift-box:hover { transform: scale(1.1); }
-        .btn-retour { margin-top: 40px; padding: 10px 20px; background: #ff4d4d; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
-        p { margin-top: 20px; color: #aaa; }
+        body {
+            background: #1a1a1a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #ffcc00;
+            margin-bottom: 30px;
+        }
+
+        /* Style du conteneur du lien (l'image cliquable) */
+        #downloadBtn {
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            text-decoration: none;
+        }
+
+        /* Style de l'image elle-même */
+        .pp-preview {
+            width: 250px;
+            height: 250px;
+            object-fit: cover; /* L'image remplit le carré sans être déformée */
+            border-radius: 30px; /* Coins arrondis type "app iOS" */
+            border: 5px solid #ffffff; /* Belle bordure blanche */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Ombre portée */
+        }
+
+        /* Animation au survol */
+        #downloadBtn:hover {
+            transform: scale(1.05) rotate(-2deg);
+            filter: brightness(1.1);
+        }
+        #downloadBtn:active {
+            transform: scale(0.98);
+        }
+
+        /* Textes et Boutons */
+        p {
+            margin-top: 25px;
+            color: #ccc;
+            font-size: 1.1rem;
+            max-width: 400px;
+        }
+
+        .btn-retour {
+            margin-top: 50px;
+            padding: 12px 30px;
+            background: #ff4d4d;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 77, 77, 0.4);
+        }
+
+        .btn-retour:hover {
+            background: #ff3333;
+            transform: translateY(-3px);
+        }
     </style>
 </head>
 <body>
 
-    <h1>Ton premier cadeau !</h1>
+    <h1>Voici ta nouvelle photo de profil !</h1>
     
-    <a href="pp.png" download="pp_whatsapp.png" class="gift-box" id="downloadBtn">🎁</a>
+    <a href="pp.png" download="pp_whatsapp_officielle.png" id="downloadBtn">
+        <img src="pp.png" alt="Aperçu de la photo de profil" class="pp-preview">
+    </a>
     
-    <p id="msg">Clique sur le cadeau pour télécharger ta nouvelle PP !</p>
+    <p id="msg">Clique sur l'image ci-dessus pour la télécharger en HD.</p>
 
-    <a href="https://gianni-core.github.io/Anniv/Mumu2026/" class="btn-retour">Retour au menu</a>
+    <a href="https://gianni-core.github.io/Anniv/Mumu2026/" class="btn-retour">Retour au menu principal</a>
 
     <script>
         const btn = document.getElementById('downloadBtn');
@@ -26,16 +96,31 @@
 
         btn.addEventListener('click', function(e) {
             const now = Date.now();
-            const lastClick = localStorage.getItem('lastDownload');
-            const cooldown = 2 * 60 * 1000; // 2 minutes
+            // On utilise une clé spécifique pour ce cadeau pour ne pas bloquer les autres
+            const storageKey = 'lastDownload_Gift1'; 
+            const lastClick = localStorage.getItem(storageKey);
+            const cooldown = 2 * 60 * 1000; // 2 minutes en millisecondes
 
             if (lastClick && (now - lastClick < cooldown)) {
-                e.preventDefault();
+                // Bloque le téléchargement
+                e.preventDefault(); 
                 const restant = Math.ceil((cooldown - (now - lastClick)) / 1000);
-                alert(`Patience ! Réessaie dans ${restant} secondes.`);
+                
+                // Feedback visuel (alerte + changement du texte)
+                alert(`Minute papillon ! Tu pourras retélécharger cette image dans ${restant} secondes.`);
+                msg.innerText = `Attente obligatoire : encore ${restant}s...`;
+                msg.style.color = "#ff4d4d";
+                
+                // Remet le message normal après 3 secondes
+                setTimeout(() => {
+                     msg.innerText = "Clique sur l'image ci-dessus pour la télécharger en HD.";
+                     msg.style.color = "#ccc";
+                }, 3000);
+
             } else {
-                localStorage.setItem('lastDownload', now);
-                msg.innerText = "Téléchargement lancé !";
+                // Autorise le téléchargement et enregistre l'heure
+                localStorage.setItem(storageKey, now);
+                msg.innerText = "✅ Téléchargement lancé avec succès !";
                 msg.style.color = "#2ecc71";
             }
         });
