@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadeau Pokémon !</title>
+    <style>
+        /* --- Styles Globaux (cohérence avec les autres pages) --- */
+        body {
+            background: #1a1a1a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 20px;
+            overflow: hidden; /* Pour éviter les barres de défilement pendant les anims */
+        }
+
+        h1 { color: #ffcc00; margin-bottom: 40px; text-shadow: 2px 2px 4px #000; }
+
+        /* --- ÉTAPE 1 : La Poké Ball (CSS pur) --- */
+        .pokeball-container {
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .pokeball-container:hover { transform: scale(1.05); }
+
+        .pokeball {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(at center top, #ff0000 45%, #000 45%, #000 55%, #ffffff 55%);
+            border-radius: 50%;
+            border: 8px solid #000;
+            position: relative;
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.3);
+            /* Animation de tremblement */
+            animation: shake 2s ease-in-out infinite;
+        }
+
+        /* Le bouton central de la Poké Ball */
+        .pokeball::before {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px; height: 40px;
+            background: #fff; border: 6px solid #000;
+            border-radius: 50%; z-index: 2;
+        }
+        .pokeball::after {
+             content: ''; position: absolute; top: 50%; left: 50%;
+             transform: translate(-50%, -50%);
+             width: 20px; height: 20px;
+             background: #fff; border: 2px solid #ccc;
+             border-radius: 50%; z-index: 3;
+        }
+
+        /* Animation quand on clique sur la balle */
+        .pokeball-open-anim {
+            animation: openBall 0.6s forwards;
+        }
+
+        /* --- ÉTAPE 2 : La Carte (Cachée au début) --- */
+        #card-reveal-section {
+            display: none; /* Caché par défaut */
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pokemon-card-link {
+            display: inline-block;
+            /* Animation d'apparition spectaculaire */
+            animation: revealCard 1s ease-out forwards, holoShimmer 3s infinite linear;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); /* Lueur dorée */
+            transition: transform 0.3s;
+        }
+        
+        .pokemon-card-link:hover {
+             transform: scale(1.05) rotate(2deg);
+        }
+
+        .pokemon-card-img {
+            width: 300px; /* Ajuste la taille selon ton image */
+            height: auto;
+            border-radius: 15px;
+            border: 5px solid #ffd700; /* Bordure dorée */
+            display: block;
+        }
+
+        /* Messages */
+        .instruction-text { color: #aaa; margin-top: 20px; font-size: 0.9em; }
+
+
+        /* --- Animations Keyframes --- */
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            20% { transform: rotate(-5deg); }
+            40% { transform: rotate(5deg); }
+            60% { transform: rotate(-3deg); }
+            80% { transform: rotate(3deg); }
+        }
+
+        @keyframes openBall {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); filter: brightness(1.5); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        @keyframes revealCard {
+            0% { transform: scale(0) rotate(-720deg); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        /* Effet brillant sur la carte */
+        @keyframes holoShimmer {
+            0% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); }
+            50% { box-shadow: 0 0 50px rgba(255, 255, 255, 0.8), 0 0 20px rgb(255, 0, 200); }
+            100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); }
+        }
+
+
+        /* --- Bouton Retour (Standard) --- */
+        .btn-retour {
+            margin-top: 60px;
+            padding: 12px 30px;
+            background: #ff4d4d; color: white;
+            text-decoration: none; border-radius: 50px;
+            font-weight: bold; transition: 0.3s;
+        }
+        .btn-retour:hover { background: #ff3333; transform: translateY(-3px); }
+    </style>
+</head>
+<body>
+
+    <h1 id="main-title">Un Pokémon sauvage apparaît !</h1>
+
+    <div class="pokeball-container" id="pokeballTrigger">
+        <div class="pokeball"></div>
+        <p class="instruction-text">Clique pour capturer !</p>
+    </div>
+
+    <div id="card-reveal-section">
+        <a href="carte_mumu.png" download="Carte_Pokemon_Mumu_Legendaire.png" class="pokemon-card-link" title="Clique pour télécharger !">
+            <img src="carte_mumu.png" alt="Carte Pokémon Personnalisée" class="pokemon-card-img">
+        </a>
+        <p class="instruction-text" style="color: #ffd700;">✨ Incroyable ! C'est une carte légendaire ! ✨<br>Clique dessus pour l'ajouter à ton Pokédex (télécharger).</p>
+    </div>
+
+
+    <a href="https://gianni-core.github.io/Anniv/Mumu2026/" class="btn-retour">Retour au Centre Pokémon</a>
+
+
+    <script>
+        const pokeballTrigger = document.getElementById('pokeballTrigger');
+        const pokeballDiv = pokeballTrigger.querySelector('.pokeball');
+        const cardSection = document.getElementById('card-reveal-section');
+        const mainTitle = document.getElementById('main-title');
+
+        pokeballTrigger.addEventListener('click', function() {
+            // 1. Arrêter le tremblement et lancer l'animation d'ouverture
+            pokeballDiv.style.animation = 'none';
+            // Forcer le navigateur à recalculer le style pour relancer une anim (hack CSS)
+            void pokeballDiv.offsetWidth; 
+            pokeballDiv.classList.add('pokeball-open-anim');
+            this.querySelector('p').style.opacity = 0; // Cacher le texte sous la balle
+
+            // 2. Attendre la fin de l'animation d'ouverture (0.6s) avant de montrer la carte
+            setTimeout(() => {
+                // Cacher la balle
+                pokeballTrigger.style.display = 'none';
+                // Changer le titre
+                mainTitle.innerText = "Capture réussie !";
+                // Montrer la carte avec son animation
+                cardSection.style.display = 'flex';
+            }, 600);
+        });
+    </script>
+
+</body>
+</html>
